@@ -28,10 +28,12 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
-
-import c109118106_w11.DBConnection;
-import c109118106_w11.ProductDAO;
-import c109118106_w11.Product;
+import models.Order;
+import models.OrderDAO;
+import models.OrderDetail;
+import models.DBConnection;
+import models.ProductDAO;
+import models.Product;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.image.ImageView;
@@ -44,13 +46,14 @@ import javafx.util.converter.IntegerStringConverter;
 public class FXMLDocumentController implements Initializable {
 
     private List<Product> products = new ArrayList();
-
+    private List<Order> orders = new ArrayList();
     //products也可以宣告為ObservableList<Product>，會更方便
     //private ObservableList<Product> products = FXCollections.observableArrayList();
     //若products是ObservableList<Product>要這樣寫才可行:
     //products.addAll( prodao.getAllProducts()); 
     //方便操作資料庫的物件
     private ProductDAO prodao = new ProductDAO();
+    private OrderDAO orddao = new OrderDAO();
 
     @FXML
     private TableView<Product> table_product;
@@ -76,10 +79,46 @@ public class FXMLDocumentController implements Initializable {
     private TableColumn<Product, String> col_description;
     @FXML
     private TableColumn<Product, String> col_category;
+    @FXML
+    private TableView<Order> table_order;
+    @FXML
+    private TableColumn<Order, String> col_order_num;
+    @FXML
+    private TableColumn<Order, String> col_order_date;
+    @FXML
+    private TableColumn<Order, Integer> col_total_price;
+    @FXML
+    private TableColumn<Order, String> col_customer_name;
+    @FXML
+    private TableColumn<Order, String> col_customer_address;
+    @FXML
+    private TableColumn<Order, String> col_customer_phone;
+    @FXML
+    private Pagination pagination1;
+    @FXML
+    private TextField queryPhone;
+    @FXML
+    private TextField queryUser;
+    @FXML
+    private TextArea log_pane_product;
+    @FXML
+    private TextArea log_pane_ord;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         initTable(); //表格初始化
+        //TextArea log_pane = new TextArea();
+        log_pane_init(log_pane_product);
+        log_pane_init(log_pane_ord);
+    }
+
+    public void log_pane_init(TextArea ta) {
+        ta.setDisable(false);
+        ta.appendText("initialize done");
+    }
+
+    public void tp_display(TextArea ta, String msg) {
+        ta.setText(msg);
     }
 
     @FXML
@@ -95,7 +134,7 @@ public class FXMLDocumentController implements Initializable {
         prodao.update(tmp);
         products = prodao.getAllProducts();
         loadTable();
-
+        tp_display(log_pane_product, "變更成功");
     }
 
     @FXML
@@ -107,7 +146,7 @@ public class FXMLDocumentController implements Initializable {
         boolean sucess = prodao.delete(id);
         products = prodao.getAllProducts();
         loadTable();
-
+        tp_display(log_pane_product, "刪除成功");
     }
 
     @FXML
@@ -122,7 +161,7 @@ public class FXMLDocumentController implements Initializable {
         prodao.insert(new Product(id, category, name, price, photo, description));
         products = prodao.getAllProducts();
         loadTable();
-
+        tp_display(log_pane_product,"新增成功");
     }
 
     @FXML
@@ -133,6 +172,7 @@ public class FXMLDocumentController implements Initializable {
         } catch (Exception ex) {
             System.out.println(ex);
         }
+        tp_display(log_pane_product,"新增一個空白紀錄");
     }
 
     @FXML
@@ -141,14 +181,14 @@ public class FXMLDocumentController implements Initializable {
         products.add(prodao.selectByID(queryID.getText()));
         //products = prodao.selectByID(queryID.getText());
         loadTable();
-
+        tp_display(log_pane_product,"查找ID完畢");
     }
 
     @FXML
     private void findName(ActionEvent event) {
         products = prodao.selectByName(queryName.getText());
         loadTable();
-
+        tp_display(log_pane_product,"查找名稱完畢");
     }
 
     @FXML
@@ -160,7 +200,7 @@ public class FXMLDocumentController implements Initializable {
         //若students是ObservableList<Student>要這樣寫才可行:
         //students.addAll( stdao.getAllStudents()); 
         loadTable();
-
+        tp_display(log_pane_product,"資料庫讀取完畢，已顯示最新產品列表");
     }
 
     private void initTable() {
@@ -174,7 +214,12 @@ public class FXMLDocumentController implements Initializable {
         col_category.setCellValueFactory(new PropertyValueFactory<>("category"));
         col_photo.setCellValueFactory(new PropertyValueFactory<>("photo"));
         col_description.setCellValueFactory(new PropertyValueFactory<>("description"));
-
+        col_order_num.setCellValueFactory(new PropertyValueFactory<>("order_num"));
+        col_order_date.setCellValueFactory(new PropertyValueFactory<>("order_date"));
+        col_total_price.setCellValueFactory(new PropertyValueFactory<>("total_price"));
+        col_customer_name.setCellValueFactory(new PropertyValueFactory<>("customer_name"));
+        col_customer_address.setCellValueFactory(new PropertyValueFactory<>("customer_address"));
+        col_customer_phone.setCellValueFactory(new PropertyValueFactory<>("customer_phone"));
         //按下頁次會驅動的事件，寫法格式有點難理解，說明如後:
         //ObservableValue<? extends Number> 是介面，
         // ? extends Number 表示某種型態繼承Number類別  ?表示此型態沒被用到所以用?代替
@@ -284,13 +329,32 @@ public class FXMLDocumentController implements Initializable {
     }
 
      */
-
     private void loadTable() {
         int totalPage = (int) (Math.ceil(products.size() * 1.0 / RowsPerPage));
         pagination.setPageCount(totalPage);
         //pagination.setCurrentPageIndex(0);
         int currentpg = pagination.getCurrentPageIndex();
         showTablePage(currentpg, RowsPerPage);
+        tp_display(log_pane_product,"讀取產品");
+    }
+
+    private void loadTable_ord() {
+        int totalPage = (int) (Math.ceil(orders.size() * 1.0 / RowsPerPage));
+        pagination1.setPageCount(totalPage);
+        //pagination.setCurrentPageIndex(0);
+        int currentpg = pagination1.getCurrentPageIndex();
+        showTablePage_ord(currentpg, RowsPerPage);
+        tp_display(log_pane_ord,"讀取訂單");
+    }
+
+    private void showTablePage_ord(int pg, int row_per_pg) {
+        table_order.getItems().clear(); //先清除表格內容
+        int from = pg * row_per_pg;  //計算在此頁面顯示第幾筆到第幾筆
+        int to = Math.min(from + row_per_pg, orders.size());
+        //products一筆一筆加到表格中
+        for (int i = from; i < to; i++) {
+            table_order.getItems().add(orders.get(i));
+        }
     }
 
     private void showTablePage(int pg, int row_per_pg) {
@@ -301,6 +365,46 @@ public class FXMLDocumentController implements Initializable {
         for (int i = from; i < to; i++) {
             table_product.getItems().add(products.get(i));
         }
+    }
+
+    @FXML
+    private void showOrder(ActionEvent event) {
+        orddao.getAllOrder();
+
+        orders = orddao.getAllOrder();
+
+        //若students是ObservableList<Student>要這樣寫才可行:
+        //students.addAll( stdao.getAllStudents()); 
+        loadTable_ord();
+        tp_display(log_pane_ord,"資料庫讀取完畢，已顯示最新訂單列表");
+    }
+
+    @FXML
+    private void ord_delete(ActionEvent event) {
+        Order ord = table_order.getSelectionModel().getSelectedItem();
+        String id = ord.getOrder_num();
+
+        boolean sucess = orddao.delete(id);
+        orders = orddao.getAllOrder();
+        loadTable_ord();
+        tp_display(log_pane_ord,"訂單刪除成功");
+    }
+
+    @FXML
+    private void findPhone(ActionEvent event) {
+        orders.clear();
+        orders = orddao.selectByPhone(queryPhone.getText());
+        //orders.add(orddao.selectByPhone(queryPhone.getText()));
+        //products = prodao.selectByID(queryID.getText());
+        loadTable_ord();
+        tp_display(log_pane_ord,"查找電話完畢");
+    }
+
+    @FXML
+    private void findUser(ActionEvent event) {
+        orders = orddao.selectByUser(queryUser.getText());
+        loadTable_ord();
+        tp_display(log_pane_ord,"查找客戶完畢\r");
     }
 
 }

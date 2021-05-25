@@ -9,6 +9,17 @@ public class OrderDetail {
     private int product_price;
     private String product_name;
     private String product_photo;
+    /*
+    private String recipt_num;
+
+    public String getRecipt_num() {
+        return recipt_num;
+    }
+
+    public void setRecipt_num(String recipt_num) {
+        this.recipt_num = recipt_num;
+    }
+*/
 
     public OrderDetail() {
     }

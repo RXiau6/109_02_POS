@@ -1,5 +1,7 @@
 package javafx_drinkpos;
 
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +14,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
+import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -20,6 +23,7 @@ import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
@@ -35,6 +39,8 @@ import models.OrderDAO;
 import models.OrderDetail;
 import models.Product;
 import models.ProductDAO;
+import models.ReciptDAO;
+import models.Recipt;
 
 public class JuiceFXMLController implements Initializable {
 
@@ -44,7 +50,7 @@ public class JuiceFXMLController implements Initializable {
 
     //放所有產品  產品編號  產品物件
     private final TreeMap<String, Product> product_dict = new TreeMap();
-   
+
     //置放訂單明細項目，也是給表格顯示的資料項目
     ObservableList<OrderDetail> order_list;
 
@@ -74,12 +80,15 @@ public class JuiceFXMLController implements Initializable {
     //***********產生資料DAO來使用
     ProductDAO productDao = new ProductDAO();
     OrderDAO orderDao = new OrderDAO();
+    ReciptDAO reciptDao = new ReciptDAO();
+    @FXML
+    private TextField acc_input;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         //讀產品 從資料庫中讀入
         prepareProduct();
-        
+
         //將所有可視元件初始化布置好，事件也準備好
         initMyComponents();
     }
@@ -276,7 +285,7 @@ public class JuiceFXMLController implements Initializable {
 
         //檢查購物車內是否有這項產品
         boolean duplication = false;
-        
+
         for (OrderDetail od : order_list) {
             if (od.getProduct_id().equals(prod_id)) {
                 duplication = true;
@@ -286,7 +295,7 @@ public class JuiceFXMLController implements Initializable {
         if (duplication) {
             System.out.println(prod_id + "已經加入購物車");
         } else {
-            
+
             //購物車加入現在點選的品項
             OrderDetail newOrdd = new OrderDetail();
             newOrdd.setProduct_id(product_dict.get(prod_id).getProduct_id());
@@ -328,12 +337,58 @@ public class JuiceFXMLController implements Initializable {
 
     }
 
+    //是否含有非法字元，只允許英文、數字及"/"
+    //need to fix;
+    private boolean textCheck(String str) {
+        Pattern pattern = Pattern.compile("/\\/|[a-zA-Z]|\\d/g");
+        Matcher matcher = pattern.matcher(str);
+        int err = 0;
+        if (matcher.find()) {
+            return true;
+
+        } else {
+            return false;
+        }
+    }
+
+    //連接DB，取得最後發票號碼，並更新下一位號碼至DB
+    private String recipt_num_gen() {
+        String track = "AA";
+        int num = orderDao.getRecipt_num();
+        if (num == -1) {
+            System.out.println("ERROR");
+        } else {
+            orderDao.setRecipt_num(num);
+        }
+        String recipt_num = String.format("%s" + "%08d", track, num);
+        return recipt_num;
+    }
+
     //結帳*******************這裡寫入訂單明細到資料庫
     @FXML
     private void check(ActionEvent event) {
-
-        display.setText("已結帳，發票列印中...\n");
-
+        String acc = acc_input.getText();
+        int acc_len = acc_input.getLength();
+        boolean chk = false; //確認載具是否含有非法字元
+        if (acc_len == 0) {
+            chk = true;
+        } else if (acc_len == 7 && textCheck(acc)) {
+            chk = true;
+        } else {
+            chk = false;
+            display.setText("錯誤，請檢查載具是否錯誤");
+            //System.out.println(acc);
+        }
+        //分辨有無載具
+        String recipt_num = recipt_num_gen(); //到此步驟確認無載具問題，產生發票號碼
+        if (chk = true && acc_len == 0) {
+            display.setText("已結帳，發票列印中...\n");
+            display.appendText("發票號碼 : " + recipt_num + "\n");
+        } else {
+            String msg = String.format("已結帳\n發票明細已儲存至載具\n(%s)", acc);
+            display.setText(msg);
+            System.out.println(acc);
+        }
         //append_order_to_csv(); //將這一筆訂單附加儲存到檔案或資料庫
         //這裡要取得不重複的order_num編號
         String order_num = orderDao.getMaxOrderNum();
@@ -344,7 +399,7 @@ public class JuiceFXMLController implements Initializable {
 
         System.out.println(order_num);
         System.out.println(order_num.split("-")[1]);
-        
+
         //將現有訂單編號加上1
         int serial_num = Integer.parseInt(order_num.split("-")[1]) + 1;
         System.out.println(serial_num);
@@ -353,6 +408,13 @@ public class JuiceFXMLController implements Initializable {
         String new_order_num = "ord-" + serial_num;
 
         int sum = check_total();
+        //將發票號碼匯入資料庫
+        Recipt rec = new Recipt();
+        rec.setAccount(acc);
+        rec.setTransaction_amount(sum);
+        rec.setRecipt_num(recipt_num);
+        rec.setCurrency("TWD");
+        reciptDao.insert(rec);
         //Cart crt = new Cart(new_order_num, "2021-05-01", 123, userName);
         Order crt = new Order();
         crt.setOrder_num(new_order_num);
@@ -360,9 +422,7 @@ public class JuiceFXMLController implements Initializable {
         crt.setCustomer_name("無姓名");
         crt.setCustomer_phtone("無電話");
         crt.setCustomer_address("無地址");
-
-        
-        //寫入一筆訂單道資料庫
+        crt.setRecipt_num(recipt_num); //寫入一筆訂單道資料庫
         orderDao.insertCart(crt);
 
         //逐筆寫入訂單明細
@@ -373,6 +433,7 @@ public class JuiceFXMLController implements Initializable {
             item.setQuantity(order_list.get(i).getQuantity());//設定訂購數量 多少杯
             item.setProduct_price(order_list.get(i).getProduct_price()); //產品單價 建議不要這個欄位 不符合正規化
             item.setProduct_name(order_list.get(i).getProduct_name());//產品名稱 建議不要這個欄位 不符合正規化
+            //item.setRecipt_num(order_list.get(i).getRecipt_num());//取得發票號碼
 
             orderDao.insertOrderDetailItem(item);
         }
@@ -405,5 +466,4 @@ public class JuiceFXMLController implements Initializable {
         String totalmsg = String.format("%s %d\n", "總金額:", check_total());
         display.setText(totalmsg);
     }
-
 }

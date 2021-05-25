@@ -29,12 +29,49 @@ public class OrderDAO {
         return maxVal;
     }
 
+    public int getRecipt_num() {
+        conn = DBConnection.getConnection();
+        String query = "select * from recipt";
+        int num =0;
+        try {
+            PreparedStatement ps
+                    = conn.prepareStatement(query);
+            ResultSet rset = ps.executeQuery();
+
+            while (rset.next()) {
+                num = rset.getInt("number");
+                
+                //不要斷線，一直會用到，使用持續連線的方式
+                //conn.close();
+            }
+            return num;
+        } catch (SQLException ex) {
+            System.out.println("getRecipt_num異常:" + ex.toString());
+            return -1;
+        }
+        
+    }
+
+    public boolean setRecipt_num(int num) {
+        conn = DBConnection.getConnection();
+        String query = "update recipt set number=?";
+        try {
+            PreparedStatement state = conn.prepareStatement(query);
+            state.setInt(1,num+1);
+            state.executeUpdate();
+            return true;
+        } catch (SQLException ex) {
+            System.out.println("updateRecipt異常:" + ex.toString());
+            return false;
+        }
+    }
+
     public boolean insertCart(Order cart) {
         //String order_num =  getMaxOrderNum();
         conn = DBConnection.getConnection();
         String query = "insert into `sale_order`(order_num,total_price,"
-                + "customer_name,customer_phone, customer_address) "
-                + "VALUES (?, ?, ?, ?, ?)";
+                + "customer_name,customer_phone, customer_address,recipt_num) "
+                + "VALUES (?, ?, ?, ?, ?,?)";
         boolean success = false;
         try {
             PreparedStatement state = conn.prepareStatement(query);
@@ -43,6 +80,7 @@ public class OrderDAO {
             state.setString(3, cart.getCustomer_name());
             state.setString(4, cart.getCustomer_phtone());
             state.setString(5, cart.getCustomer_address());
+            state.setString(6, cart.getRecipt_num());
             state.execute();
             success = true;
         } catch (SQLException ex) {
@@ -65,6 +103,7 @@ public class OrderDAO {
             state.setInt(3, item.getQuantity());
             state.setInt(4, item.getProduct_price()); //optional
             state.setString(5, item.getProduct_name());//optional
+            //state.setString(6, item.getRecipt_num());
             state.execute();
             success = true;
         } catch (SQLException ex) {

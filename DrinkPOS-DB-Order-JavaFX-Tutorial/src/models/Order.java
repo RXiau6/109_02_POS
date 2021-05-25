@@ -10,6 +10,15 @@ public class Order
     private String customer_name;
     private String customer_address;
     private String customer_phtone;
+    private String recipt_num;
+
+    public String getRecipt_num() {
+        return recipt_num;
+    }
+
+    public void setRecipt_num(String recipt_num) {
+        this.recipt_num = recipt_num;
+    }
     
     public Order() {
     }
