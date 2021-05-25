@@ -91,6 +91,18 @@ public class JuiceFXMLController implements Initializable {
 
         //將所有可視元件初始化布置好，事件也準備好
         initMyComponents();
+        /*
+        String s1 = "/1SOOJHQ";
+        String s2 = "/1SOOJH";
+        String s3 = "@@@";
+        String s4 = "\\";
+
+        System.out.println("s1"+textCheck(s1)); 
+        System.out.println("s2"+textCheck(s2));
+        System.out.println("s3"+textCheck(s3));
+        System.out.println("s4"+textCheck(s4));
+         */
+
     }
 
     //準備產品的字典 從資料庫中讀入
@@ -339,16 +351,10 @@ public class JuiceFXMLController implements Initializable {
 
     //是否含有非法字元，只允許英文、數字及"/"
     //need to fix;
-    private boolean textCheck(String str) {
-        Pattern pattern = Pattern.compile("/\\/|[a-zA-Z]|\\d/g");
+    public static boolean textCheck(String str) {
+        Pattern pattern = Pattern.compile("\\/\\w\\w\\w\\w\\w\\w\\w");
         Matcher matcher = pattern.matcher(str);
-        int err = 0;
-        if (matcher.find()) {
-            return true;
-
-        } else {
-            return false;
-        }
+        return matcher.find();
     }
 
     //連接DB，取得最後發票號碼，並更新下一位號碼至DB
@@ -367,81 +373,91 @@ public class JuiceFXMLController implements Initializable {
     //結帳*******************這裡寫入訂單明細到資料庫
     @FXML
     private void check(ActionEvent event) {
-        String acc = acc_input.getText();
-        int acc_len = acc_input.getLength();
-        boolean chk = false; //確認載具是否含有非法字元
-        if (acc_len == 0) {
-            chk = true;
-        } else if (acc_len == 7 && textCheck(acc)) {
-            chk = true;
-        } else {
-            chk = false;
-            display.setText("錯誤，請檢查載具是否錯誤");
-            //System.out.println(acc);
-        }
-        //分辨有無載具
-        String recipt_num = recipt_num_gen(); //到此步驟確認無載具問題，產生發票號碼
-        if (chk = true && acc_len == 0) {
-            display.setText("已結帳，發票列印中...\n");
-            display.appendText("發票號碼 : " + recipt_num + "\n");
-        } else {
-            String msg = String.format("已結帳\n發票明細已儲存至載具\n(%s)", acc);
-            display.setText(msg);
-            System.out.println(acc);
-        }
-        //append_order_to_csv(); //將這一筆訂單附加儲存到檔案或資料庫
-        //這裡要取得不重複的order_num編號
-        String order_num = orderDao.getMaxOrderNum();
-
-        if (order_num == null) {
-            order_num = "ord-100";
-        }
-
-        System.out.println(order_num);
-        System.out.println(order_num.split("-")[1]);
-
-        //將現有訂單編號加上1
-        int serial_num = Integer.parseInt(order_num.split("-")[1]) + 1;
-        System.out.println(serial_num);
-
-        //每家公司都有其訂單或產品的編號系統，這裡用ord-xxx表之
-        String new_order_num = "ord-" + serial_num;
-
         int sum = check_total();
-        //將發票號碼匯入資料庫
-        Recipt rec = new Recipt();
-        rec.setAccount(acc);
-        rec.setTransaction_amount(sum);
-        rec.setRecipt_num(recipt_num);
-        rec.setCurrency("TWD");
-        reciptDao.insert(rec);
-        //Cart crt = new Cart(new_order_num, "2021-05-01", 123, userName);
-        Order crt = new Order();
-        crt.setOrder_num(new_order_num);
-        crt.setTotal_price(sum);
-        crt.setCustomer_name("無姓名");
-        crt.setCustomer_phtone("無電話");
-        crt.setCustomer_address("無地址");
-        crt.setRecipt_num(recipt_num); //寫入一筆訂單道資料庫
-        orderDao.insertCart(crt);
+        if (sum != 0) {
+            String acc = acc_input.getText();
+            int acc_len = acc_input.getLength();
+            boolean chk = textCheck(acc); //確認載具是否含有非法字元
+            boolean acc_addr = false; //是否使用載具
+            
+            if (acc_len == 0) {
+                acc_addr = false;
+                chk = true;
+            } else if (acc_len == 8) {
+                acc_addr = true;
+            } else {
+                chk = false;
+                display.setText("錯誤，請檢查載具是否錯誤");
+                //System.out.println(acc);
+            }
+            //分辨有無載具
+            String recipt_num = recipt_num_gen(); //到此步驟確認無載具問題，產生發票號碼
+            if (chk == true && acc_addr == false) {
+                display.setText("已結帳，發票列印中...\n");
+                display.appendText("發票號碼 : " + recipt_num + "\n");
+            } else if (chk == true && acc_addr == true) {
+                String msg = String.format("已結帳\n發票明細已儲存至載具\n(%s)", acc);
+                display.setText(msg);
+                System.out.println(acc);
+            } else {
+                System.out.println("textCheck_FAIL");
+            }
+            //append_order_to_csv(); //將這一筆訂單附加儲存到檔案或資料庫
+            //這裡要取得不重複的order_num編號
+            String order_num = orderDao.getMaxOrderNum();
 
-        //逐筆寫入訂單明細
-        for (int i = 0; i < order_list.size(); i++) {
-            OrderDetail item = new OrderDetail();
-            item.setOrder_num(new_order_num); //設定訂單編號
-            item.setProduct_id(order_list.get(i).getProduct_id()); //設定產品編號
-            item.setQuantity(order_list.get(i).getQuantity());//設定訂購數量 多少杯
-            item.setProduct_price(order_list.get(i).getProduct_price()); //產品單價 建議不要這個欄位 不符合正規化
-            item.setProduct_name(order_list.get(i).getProduct_name());//產品名稱 建議不要這個欄位 不符合正規化
-            //item.setRecipt_num(order_list.get(i).getRecipt_num());//取得發票號碼
+            if (order_num == null) {
+                order_num = "ord-100";
+            }
 
-            orderDao.insertOrderDetailItem(item);
+            System.out.println(order_num);
+            System.out.println(order_num.split("-")[1]);
+
+            //將現有訂單編號加上1
+            int serial_num = Integer.parseInt(order_num.split("-")[1]) + 1;
+            System.out.println(serial_num);
+
+            //每家公司都有其訂單或產品的編號系統，這裡用ord-xxx表之
+            String new_order_num = "ord-" + serial_num;
+            //將發票號碼匯入資料庫
+            if (chk==true||acc_addr==false){
+                Recipt rec = new Recipt();
+                rec.setAccount(acc);
+                rec.setTransaction_amount(sum);
+                rec.setRecipt_num(recipt_num);
+                rec.setCurrency("TWD");
+                reciptDao.insert(rec);
+            }
+            //Cart crt = new Cart(new_order_num, "2021-05-01", 123, userName);
+            Order crt = new Order();
+            crt.setOrder_num(new_order_num);
+            crt.setTotal_price(sum);
+            crt.setCustomer_name("無姓名");
+            crt.setCustomer_phtone("無電話");
+            crt.setCustomer_address("無地址");
+            crt.setRecipt_num(recipt_num); //寫入一筆訂單道資料庫
+            orderDao.insertCart(crt);
+
+            //逐筆寫入訂單明細
+            for (int i = 0; i < order_list.size(); i++) {
+                OrderDetail item = new OrderDetail();
+                item.setOrder_num(new_order_num); //設定訂單編號
+                item.setProduct_id(order_list.get(i).getProduct_id()); //設定產品編號
+                item.setQuantity(order_list.get(i).getQuantity());//設定訂購數量 多少杯
+                item.setProduct_price(order_list.get(i).getProduct_price()); //產品單價 建議不要這個欄位 不符合正規化
+                item.setProduct_name(order_list.get(i).getProduct_name());//產品名稱 建議不要這個欄位 不符合正規化
+                //item.setRecipt_num(order_list.get(i).getRecipt_num());//取得發票號碼
+
+                orderDao.insertOrderDetailItem(item);
+            }
+            order_list.clear();
+        } else {
+            display.setText("購物車是空的\n將商品加入購物車再結帳吧！");
         }
 
-        order_list.clear();
     }
 
-    //選擇飲料菜單種類
+//選擇飲料菜單種類
     @FXML
     private void select_menu(ActionEvent event) {
 

@@ -12,9 +12,10 @@ public class ProductDAO {
 
     //private Connection conn = DBConnection.getConnection();
     private Connection conn;
-
+    
+    
     public List<Product> getAllProducts() {
-
+        
         conn = DBConnection.getConnection();
         String query = "select * from product";
         List<Product> product_list = new ArrayList();
@@ -33,9 +34,9 @@ public class ProductDAO {
                 product.setPhoto(rset.getString("photo"));
                 product.setDescription(rset.getString("description"));
                 product_list.add(product);
-
+                
                 //不要斷線，一直會用到，使用持續連線的方式
-                //conn.close();
+               //conn.close();
             }
         } catch (SQLException ex) {
             System.out.println("getAllproducts異常:" + ex.toString());
@@ -44,6 +45,7 @@ public class ProductDAO {
         return product_list;
     }
 
+ 
     //選擇特定字串"孫大毛"或是"孫%"或是"%毛"
     public List<Product> findByNameContaining(String name_str) {
         conn = DBConnection.getConnection();
@@ -54,7 +56,7 @@ public class ProductDAO {
         String query = "select * from product where name like ?";
         try {
             PreparedStatement state = conn.prepareStatement(query);
-            state.setString(1, "%" + name_str + "%");
+            state.setString(1, "%"+name_str+"%");
             ResultSet rset = state.executeQuery();
             while (rset.next()) {
                 Product product = new Product();
@@ -70,7 +72,7 @@ public class ProductDAO {
         return product_list;
     }
 
-    public List<Product> findByPriceLessThanEqual(int price) {
+   public List<Product> findByPriceLessThanEqual(int price) {
         conn = DBConnection.getConnection();
         List<Product> product_list = new ArrayList();
         String query = "select * from product where price <= ?";
@@ -93,8 +95,9 @@ public class ProductDAO {
         }
         return product_list;
     }
-
-    public List<Product> findByCate(String cate) {
+    
+  
+   public List<Product> findByCate(String cate) {
         conn = DBConnection.getConnection();
         List<Product> product_list = new ArrayList();
         String query = "select * from product where category = ?";
@@ -117,7 +120,7 @@ public class ProductDAO {
         }
         return product_list;
     }
-
+    
     //選擇某個student_id
     public Product findById(String id) {
         conn = DBConnection.getConnection();
@@ -150,8 +153,8 @@ public class ProductDAO {
         }
 
     }
-
-    public boolean insert(Product product) {
+  
+       public boolean insert(Product product) {
         conn = DBConnection.getConnection();
         String query = "insert into product(product_id,name,category,price,photo,description) VALUES (?,?,?,?,?,?)";
         boolean success = false;
@@ -165,14 +168,15 @@ public class ProductDAO {
             state.setString(6, product.getDescription());
 
             state.execute();
-            state.executeUpdate();
+            //state.executeUpdate();
             success = true;
         } catch (SQLException ex) {
             System.out.println("insert異常:" + ex.toString());
         }
         return success;
-    }
-
+    } 
+    
+       
     public boolean delete(String id) {
         conn = DBConnection.getConnection();
         String query = "delete from product where product_id =?";
@@ -204,102 +208,13 @@ public class ProductDAO {
             state.setInt(3, product.getPrice());
             state.setString(4, product.getPhoto());
             state.setString(5, product.getDescription());
-
+            
             state.executeUpdate();
         } catch (SQLException ex) {
             System.out.println("update異常:" + ex.toString());
         }
     }
-    //選擇特定姓名，輸入正確姓名"孫大毛"或是"孫%"或是"%毛"
-
-    public List<Product> selectByName(String name_str) {
-        conn = DBConnection.getConnection();
-        boolean success = false;
-        List<Product> product_list = new ArrayList();
-        //String query = String.format("select * from product where name like '%s%s'", name_str, "%");
-        //String query = String.format("select * from product where name like '%s'", name_str);
-        String query = "select * from product where name like ?";
-        try {
-            PreparedStatement state = conn.prepareStatement(query);
-            state.setString(1, name_str);
-
-            ResultSet rset = state.executeQuery();
-            while (rset.next()) {
-                Product product = new Product();
-                product.setProduct_id(rset.getString("product_id"));
-                product.setName(rset.getString("name"));
-                product.setPrice(rset.getInt("price"));
-                product_list.add(product);
-            }
-        } catch (SQLException ex) {
-            System.out.println("資料庫selectByName操作異常:" + ex.toString());
-        }
-        return product_list;
-    }
-
-    //選擇某個product_id
-    public Product selectByID(String id) {
-        conn = DBConnection.getConnection();
-        boolean success = false;
-        String query = "select * from product where product_id = ?";
-        //String query = String.format("select * from product where product_id = '%s'", id);
-        Product product = new Product();
-        try {
-            PreparedStatement state = conn.prepareStatement(query);
-            state.setString(1, id);
-            ResultSet rset = state.executeQuery();
-            while (rset.next()) {
-                success = true;
-
-                product.setProduct_id(rset.getString("product_id"));
-                product.setName(rset.getString("name"));
-                product.setPrice(rset.getInt("price"));
-            }
-        } catch (SQLException ex) {
-            System.out.println("資料庫selectByID操作異常:" + ex.toString());
-        }
-
-        if (success) {
-            return product;
-        } else {
-            return null;
-        }
-
-    }
-
-    //若是有多個不唯一的product_id，查詢結果可能會有多個，以ArrayList回傳
-    public List<Product> selectAllByID(String id) {
-        conn = DBConnection.getConnection();
-        List<Product> product_list = new ArrayList();
-        boolean success = false;
-        String query = "select * from product where product_id = ?";
-        //String query = String.format("select * from product where product_id = '%s'", id);
-        Product product = new Product();
-        try {
-            PreparedStatement ps = conn.prepareStatement(query);
-            ps.setString(0, id);
-            ResultSet rset = ps.executeQuery();
-
-            while (rset.next()) {
-                success = true;
-
-                product.setProduct_id(rset.getString("product_id"));
-                product.setName(rset.getString("name"));
-                product.setPrice(rset.getInt("price"));
-                product_list.add(product);
-            }
-        } catch (SQLException ex) {
-            System.out.println("資料庫selectByID操作異常:" + ex.toString());
-        }
-
-        if (success) {
-            return product_list;
-        } else {
-            return null;
-        }
-
-    }
-
+    
     public static void main(String[] args) {
 
         ProductDAO dao = new ProductDAO();

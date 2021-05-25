@@ -171,7 +171,7 @@ public class ProductDAO {
             //state.executeUpdate();
             success = true;
         } catch (SQLException ex) {
-            System.out.println("insert異常:" + ex.toString());
+            System.out.println("Product_insert異常:" + ex.toString());
         }
         return success;
     } 

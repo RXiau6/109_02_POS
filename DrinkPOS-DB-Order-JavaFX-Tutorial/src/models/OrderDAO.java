@@ -84,7 +84,7 @@ public class OrderDAO {
             state.execute();
             success = true;
         } catch (SQLException ex) {
-            System.out.println("insert異常:" + ex.toString());
+            System.out.println("Order_insert異常:" + ex.toString());
         }
         return success;
     }
@@ -107,7 +107,7 @@ public class OrderDAO {
             state.execute();
             success = true;
         } catch (SQLException ex) {
-            System.out.println("insert異常:" + ex.toString());
+            System.out.println("Order_detail_insert異常:" + ex.toString());
         }
         return success;
     }

@@ -5,19 +5,13 @@
  */
 package models;
 
-
-
-/**
- *
- * @author RXiau6
- */
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DBConnection {
 
-    private static Connection conn = null;
+    private static Connection conn;
 
     private static final String URL = "jdbc:mariadb://localhost:3306/db_pos";
     private static final String USER = "root";
@@ -42,4 +36,3 @@ public class DBConnection {
     }
 }
 
-    

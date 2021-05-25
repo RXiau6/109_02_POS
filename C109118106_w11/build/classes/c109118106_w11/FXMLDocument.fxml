@@ -68,8 +68,9 @@
                               <TableColumn fx:id="col_order_date" prefWidth="75.0" text="訂單日期" />
                               <TableColumn fx:id="col_total_price" prefWidth="92.0" text="訂單總價格" />
                               <TableColumn fx:id="col_customer_name" prefWidth="94.0" text="客戶姓名" />
-                              <TableColumn fx:id="col_customer_address" prefWidth="499.0" text="客戶地址" />
-                              <TableColumn fx:id="col_customer_phone" prefWidth="151.0" text="客戶電話" />
+                              <TableColumn fx:id="col_customer_address" prefWidth="381.0" text="客戶地址" />
+                              <TableColumn fx:id="col_customer_phone" prefWidth="139.0" text="客戶電話" />
+                              <TableColumn fx:id="col_recipt_num" prefWidth="129.0" text="發票號碼" />
                            </columns>
                         </TableView>
                         <Pagination fx:id="pagination1" layoutX="28.0" layoutY="381.0" maxPageIndicatorCount="2" prefHeight="86.0" prefWidth="236.0" />

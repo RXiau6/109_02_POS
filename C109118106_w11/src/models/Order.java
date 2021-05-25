@@ -10,17 +10,17 @@ public class Order
     private String customer_name;
     private String customer_address;
     private String customer_phone;
-    
-    public Order() {
+    private String recipt_num;
+
+    public String getRecipt_num() {
+        return recipt_num;
     }
 
-    public Order(String order_num, String order_date, int total_price, String customer_name, String customer_address, String customer_phone) {
-        this.order_num = order_num;
-        this.order_date = order_date;
-        this.total_price = total_price;
-        this.customer_name = customer_name;
-        this.customer_address = customer_address;
-        this.customer_phone = customer_phone;
+    public void setRecipt_num(String recipt_num) {
+        this.recipt_num = recipt_num;
+    }
+    
+    public Order() {
     }
     
     public String getOrder_date() {

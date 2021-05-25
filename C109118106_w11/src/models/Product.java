@@ -13,16 +13,6 @@ public class Product {
     public Product() {
     }
 
-    public Product(String product_id, String category, String name, int price, String photo, String description) {
-        this.product_id = product_id;
-        this.category = category;
-        this.name = name;
-        this.price = price;
-        this.photo = photo;
-        this.description = description;
-    }
-
-
 
     public String getProduct_id() {
         return product_id;
@@ -30,6 +20,15 @@ public class Product {
 
     public void setProduct_id(String product_id) {
         this.product_id = product_id;
+    }
+
+    public Product(String product_id, String category, String name, int price, String photo, String description) {
+        this.product_id = product_id;
+        this.category = category;
+        this.name = name;
+        this.price = price;
+        this.photo = photo;
+        this.description = description;
     }
 
     public String getCategory() {
