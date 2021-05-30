@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.*?>
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Pagination?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane prefHeight="650.0" prefWidth="1027.0" stylesheets="@../css/bootstrap3.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="c109118106_w11.FXMLDocumentController">
+   <children>
+      <TabPane layoutX="-1.0" layoutY="-2.0" prefHeight="650.0" prefWidth="1027.0" tabClosingPolicy="UNAVAILABLE">
+        <tabs>
+            <Tab text="產品資料維護(表格)">
+               <content>
+                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="613.0" prefWidth="975.0" style="-fx-background-color: Azure;">
+                     <children>
+                        <Button layoutX="360.0" layoutY="381.0" mnemonicParsing="false" onAction="#update" prefHeight="61.0" prefWidth="150.0" styleClass="danger" text="更新這一筆" />
+                        <Button layoutX="547.0" layoutY="381.0" mnemonicParsing="false" onAction="#delete" prefHeight="31.0" prefWidth="150.0" styleClass="danger" text="刪除這一筆" />
+                        <Button layoutX="547.0" layoutY="433.0" mnemonicParsing="false" onAction="#insert" prefHeight="31.0" prefWidth="150.0" styleClass="danger" text="寫入這一筆" />
+                        <Button layoutX="360.0" layoutY="433.0" mnemonicParsing="false" onAction="#blankRecord" prefHeight="31.0" prefWidth="150.0" styleClass="danger" text="新增空白一筆" />
+                        <Separator layoutX="-5.0" layoutY="488.0" prefHeight="13.0" prefWidth="700.0" />
+                        <TextField fx:id="queryID" layoutX="63.0" layoutY="517.0" prefHeight="32.0" prefWidth="350.0" promptText="查詢學號" text="p-j-101" />
+                        <TextField fx:id="queryName" layoutX="62.0" layoutY="555.0" prefHeight="32.0" prefWidth="350.0" promptText="查詢姓名" text="西瓜%" />
+                        <Button layoutX="447.0" layoutY="517.0" mnemonicParsing="false" onAction="#findID" prefHeight="31.0" prefWidth="150.0" styleClass="success" text="id查詢" />
+                        <Button layoutX="447.0" layoutY="555.0" mnemonicParsing="false" onAction="#findName" prefHeight="31.0" prefWidth="150.0" styleClass="success" text="產品查詢" />
+                        <Button layoutX="26.0" layoutY="19.0" mnemonicParsing="false" onAction="#findAll" prefHeight="31.0" prefWidth="200.0" styleClass="success" text="顯示全部產品" />
+                        <Separator layoutX="-3.0" layoutY="61.0" prefHeight="13.0" prefWidth="1036.0" />
+                        <TableView fx:id="table_product" layoutX="23.0" layoutY="76.0" prefHeight="286.0" prefWidth="998.0">
+                          <columns>
+                            <TableColumn fx:id="col_id" prefWidth="59.0" text="id" />
+                              <TableColumn fx:id="col_category" prefWidth="95.0" text="產品類別" />
+                            <TableColumn fx:id="col_name" prefWidth="92.0" text="產品名稱 " />
+                              <TableColumn fx:id="col_price" prefWidth="94.0" text="價格" />
+                              <TableColumn fx:id="col_photo" prefWidth="144.0" text="圖片路徑" />
+                              <TableColumn fx:id="col_description" prefWidth="491.0" text="產品描述" />
+                          </columns>
+                        </TableView>
+                        <Pagination fx:id="pagination" layoutX="28.0" layoutY="381.0" maxPageIndicatorCount="2" prefHeight="86.0" prefWidth="236.0" />
+                        <TextArea fx:id="log_pane_product" layoutX="722.0" layoutY="388.0" prefHeight="200.0" prefWidth="300.0" />
+                     </children>
+                  </AnchorPane>
+               </content>
+            </Tab>
+            <Tab text="訂單查看">
+               <content>
+                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="429.0" prefWidth="620.0" style="-fx-background-color: Azure;">
+                     <children>
+                        <Button layoutX="504.0" layoutY="409.0" mnemonicParsing="false" onAction="#ord_delete" prefHeight="41.0" prefWidth="150.0" styleClass="danger" text="刪除這一筆" />
+                        <Separator layoutX="-5.0" layoutY="488.0" prefHeight="13.0" prefWidth="700.0" />
+                        <TextField fx:id="queryPhone" layoutX="63.0" layoutY="517.0" prefHeight="32.0" prefWidth="350.0" promptText="查詢學號" text="093256789" />
+                        <TextField fx:id="queryUser" layoutX="62.0" layoutY="555.0" prefHeight="32.0" prefWidth="350.0" promptText="查詢姓名" text="王%" />
+                        <Button layoutX="504.0" layoutY="517.0" mnemonicParsing="false" onAction="#findPhone" prefHeight="31.0" prefWidth="150.0" styleClass="success" text="電話查詢" />
+                        <Button layoutX="504.0" layoutY="555.0" mnemonicParsing="false" onAction="#findUser" prefHeight="31.0" prefWidth="150.0" styleClass="success" text="客戶查詢" />
+                        <Button layoutX="26.0" layoutY="19.0" mnemonicParsing="false" onAction="#showOrder" prefHeight="31.0" prefWidth="200.0" styleClass="success" text="顯示全部訂單" />
+                        <Separator layoutX="-3.0" layoutY="61.0" prefHeight="13.0" prefWidth="1014.0" />
+                        <TableView fx:id="table_order" layoutX="23.0" layoutY="76.0" prefHeight="286.0" prefWidth="991.0">
+                           <columns>
+                              <TableColumn fx:id="col_order_num" prefWidth="79.0" text="訂單號碼" />
+                              <TableColumn fx:id="col_order_date" prefWidth="75.0" text="訂單日期" />
+                              <TableColumn fx:id="col_total_price" prefWidth="92.0" text="訂單總價格" />
+                              <TableColumn fx:id="col_customer_name" prefWidth="94.0" text="客戶姓名" />
+                              <TableColumn fx:id="col_customer_address" prefWidth="381.0" text="客戶地址" />
+                              <TableColumn fx:id="col_customer_phone" prefWidth="139.0" text="客戶電話" />
+                              <TableColumn fx:id="col_recipt_num" prefWidth="129.0" text="發票號碼" />
+                           </columns>
+                        </TableView>
+                        <Pagination fx:id="pagination1" layoutX="28.0" layoutY="381.0" maxPageIndicatorCount="2" prefHeight="86.0" prefWidth="236.0" />
+                        <TextArea fx:id="log_pane_ord" layoutX="720.0" layoutY="388.0" prefHeight="200.0" prefWidth="300.0" />
+                     </children>
+                  </AnchorPane>
+               </content>
+            </Tab>
+        </tabs>
+      </TabPane>
+   </children>
+</AnchorPane>
