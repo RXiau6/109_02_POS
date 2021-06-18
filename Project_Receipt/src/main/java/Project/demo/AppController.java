@@ -10,6 +10,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,15 +24,75 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class AppController {
 
     private final ProductDAO productDao = new ProductDAO();
+    private final OrderDAO orderDao = new OrderDAO();
+
+    //讓SpringBoot幫我們取得session物件
+    @Autowired
+    private HttpSession httpSession;
 
     //url根路徑 或稱為 家路徑 也適合
     @RequestMapping("/")
     public String home(Model model) {
+        return "index.html";
+    }
+
+    //product list
+    @RequestMapping("/list")
+    public String list(Model model) {
         List<Product> products = productDao.getAllProducts();
         System.out.println(products.get(0).toString());
         model.addAttribute("listProducts", products);
         System.out.println(model.toString());
-        return "home.html";
+        return "list.html";
+    }
+
+    //order
+    @RequestMapping("/order")
+    public String pdHome(Model model) {
+
+        // 產品首頁顯示的產品 可以選定一個產品類別或是全部
+        List<Product> products = productDao.findByCate("果汁"); //只有果汁類
+        //List<Product> products = productDao.getAllProducts(); //全部
+
+        model.addAttribute("products", products);
+        return "order.html";
+    }
+
+    //order search 1
+    @RequestMapping("/searchProductByName")
+    public String searchByName(@RequestParam("name") String name, Model model) {
+
+        List<Product> products = productDao.findByNameContaining(name);
+        model.addAttribute("products", products);
+        return "order.html";
+    }
+
+    //order search 2
+    @RequestMapping("/searchProductByPrice")
+    public String searchByPrice(@RequestParam(name = "price") String strprice, Model model) {
+
+        int price = 0;
+        try {
+            price = Integer.parseInt(strprice);
+        } catch (NumberFormatException ex) {
+            System.out.println("價格輸入格式錯誤");
+            System.out.println(ex);
+            return "redirect:" + "/order";  //跳到到根路徑網頁  等於回到order的意思         
+        }
+
+        List<Product> products = productDao.findByPriceLessThanEqual(price);
+        model.addAttribute("products", products);
+        return "order.html";
+    }
+
+    //order search 3
+    @RequestMapping("/searchProductByCate")
+    public String searchByCate(@RequestParam(name = "category") String cate, Model model) {
+
+        System.out.println("cate:" + cate);
+        List<Product> products = productDao.findByCate(cate);
+        model.addAttribute("products", products);
+        return "order.html";
     }
 
     //新增產品
