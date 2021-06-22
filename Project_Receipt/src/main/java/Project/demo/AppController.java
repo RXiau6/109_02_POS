@@ -346,8 +346,27 @@ public class AppController {
     //public String saveProduct(@ModelAttribute("product") Product product) {
     public String saveProduct(Product product) {
         productDao.insert(product);
+        return "redirect:/list";
+    }
+    //產品刪除功能
+    /*
+    //寫法A  http://localhost:8080/deleteProduct/pid=p-j-000  可以刪除成功
+    @GetMapping("/deleteProduct/{pid}")
+    public String deleteProduct(@PathVariable(value = "pid") String product_id) {
+        this.productDao.delete(product_id);
         return "redirect:/";
     }
+    */
+
+    //寫法D 較安全
+    //使用Post的方式較佳。
+    //@RequestParam參數: name= "product_id" 或 value= "product_id" 皆可
+    @PostMapping("/deleteProduct")
+    public String deleteProduct(@RequestParam(name = "product_id") String product_id) {
+        this.productDao.delete(product_id);
+        return "redirect:/list";
+    }
+
 
     // 修改產品Modify Update
 // 寫法1 使用GET傳遞產品編號 後端使用@RequestPath抓取路徑參數的方式
@@ -382,7 +401,7 @@ public class AppController {
     public String updateProduct(@ModelAttribute("product") Product product) {
         System.out.println(product.getProduct_id());
         this.productDao.update(product);
-        return "redirect:/";
+        return "redirect:/list";
     }
 
     //產品刪除功能

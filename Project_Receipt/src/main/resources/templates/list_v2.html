@@ -30,20 +30,20 @@
                <div class="container">
                             <div class="row">
                                 <div class="col-lg-12 mb-2 position-relative ">
-                                    <a  class="btn btn-primary btn-sm mb-3" href="/">回首頁</a>
-                                    <a href="/showNewProductForm" class="btn btn-primary btn-sm mb-3">新增產品</a>
+                                    <a  class="btn btn-primary btn-m mb-3" href="/">回首頁</a>
+                                    <a href="/showNewProductForm" class="btn btn-primary btn-m mb-3">新增產品</a>
                                 </div>
                                 <div class="col-lg-12 mb-2">
                                     <table border="0" class="table table-striped table-responsive-md">
                                         <thead>
                                             <tr>
-                                                <th>Product Id</th>
-                                                <th>Category</th>
-                                                <th>Name</th>
-                                                <th>Price</th>
-                                                <th>Photo</th>
-                                                <th>Description</th>
-                                                <th>Actions </th>
+                                                <th>產品編號</th>
+                                                <th>類別</th>
+                                                <th>產品名稱</th>
+                                                <th>單價</th>
+                                                <th>照片名稱</th>
+                                                <th>敘述</th>
+                                                <th>動作 </th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -58,7 +58,7 @@
                                                     <div class="btn-group" role="group">
 
                                                         <!-- 寫法1 -->
-                                                        <a th:href="@{/showFormForUpdate/{pid}(pid=${prod.product_id})}" class="btn btn-sm btn-primary mr-3">修改</a>
+                                                        <a th:href="@{/showFormForUpdate/{pid}(pid=${prod.product_id})}" class="btn btn-sm btn-primary mr-2">修改</a>
                                                         <!-- 寫法1 使用GET傳遞產品編號 後端使用@RequestPath抓取路徑參數的方式
                                                         <a th:href="@{/showFormForUpdate/{pid}(pid=${prod.product_id})}" class="btn btn-primary mr-2">修改</a>
                                                         -->
@@ -78,7 +78,7 @@
                                                         <form th:action="@{/deleteProduct}" method="post">
                                                             <input type="hidden" name="product_id" th:value="${prod.product_id}"/>
                                                             <input type="hidden" name="name" value="沒有名稱，名稱不重要!"/>
-                                                            <button type="submit" class="btn btn-danger ml-5" onclick="return confirm('確定要刪除?')">刪除</button>
+                                                            <button type="submit" class="btn btn-danger ml-2" onclick="return confirm('確定要刪除?')">刪除</button>
                                                         </form>
 
                                                         <!-- 寫法D 使用Post 回傳產品編號name = product_id 其它值都是空的 給後端 -->
