@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Random;
 
 public class OrderDAO {
 
@@ -80,7 +81,7 @@ public class OrderDAO {
             state.setString(3, cart.getCustomer_name());
             state.setString(4, cart.getCustomer_phtone());
             state.setString(5, cart.getCustomer_address());
-            state.setString(6, cart.getRecipt_num());
+            state.setString(6, genReceipt());
             state.execute();
             success = true;
         } catch (SQLException ex) {
@@ -103,7 +104,7 @@ public class OrderDAO {
             state.setInt(3, item.getQuantity());
             state.setInt(4, item.getProduct_price()); //optional
             state.setString(5, item.getProduct_name());//optional
-            //state.setString(6, item.getRecipt_num());
+            //state.setString(6, genReceipt);
             state.execute();
             success = true;
         } catch (SQLException ex) {
@@ -111,7 +112,27 @@ public class OrderDAO {
         }
         return success;
     }
-
+    public static String genReceipt(){
+        return randChar()+randNum();
+    }
+    public static String randNum(){
+        int n =0;
+        
+        Random r = new Random(System.currentTimeMillis());
+        n = r.nextInt(99999999);
+        String num = String.format("%08d",n);
+        return num;
+    }
+    public static String randChar(){
+        String track ="";
+        int code =0;
+        while(track.length()<2){
+        Random r = new Random();
+        code = r.nextInt(25)+65;
+        track += (char)code;
+        }
+        return track;
+    }
     public static void main(String[] args) {
 
         OrderDAO orddao = new OrderDAO();
