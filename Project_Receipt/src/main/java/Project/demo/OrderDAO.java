@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -89,7 +90,76 @@ public class OrderDAO {
         }
         return success;
     }
+    
+    public List<Order> getReceipt(String order_num){
+               conn = DBConnection.getConnection();
+        String query = "select * from sale_order where order_num = ?";
+        List<Order> receipt_list = new ArrayList();
 
+        try {
+            PreparedStatement ps
+                    = conn.prepareStatement(query);
+
+            ps.setString(1, order_num);
+            ResultSet rset = ps.executeQuery();
+/*
+                    private String order_num;
+    private String order_date;
+    private int total_price;
+    private String customer_name;
+    private String customer_address;
+    private String customer_phtone;
+    private String recipt_num;*/
+            while (rset.next()) {
+                Order order = new Order();
+                order.setOrder_num(rset.getString("order_num"));
+                order.setOrder_date(rset.getString("order_date"));
+                order.setTotal_price(rset.getInt("total_price"));
+                order.setCustomer_name(rset.getString("customer_name"));
+                order.setCustomer_address(rset.getString("customer_address"));
+                order.setCustomer_phtone(rset.getString("customer_phone"));
+                order.setRecipt_num(rset.getString("recipt_num"));
+                receipt_list.add(order);
+                
+                //不要斷線，一直會用到，使用持續連線的方式
+               //conn.close();
+            }
+        } catch (SQLException ex) {
+            System.out.println("getReceipt異常:" + ex.toString());
+        }
+
+        return receipt_list;
+    }
+    
+    public List<OrderDetail> getAllDetails(String order_num){
+       conn = DBConnection.getConnection();
+        String query = "select * from order_detail where order_num = ?";
+        List<OrderDetail> detail_list = new ArrayList();
+
+        try {
+            PreparedStatement ps
+                    = conn.prepareStatement(query);
+
+            ps.setString(1, order_num);
+            ResultSet rset = ps.executeQuery();
+
+            while (rset.next()) {
+                OrderDetail detail = new OrderDetail();
+                detail.setOrder_num(rset.getString("order_num"));
+                detail.setProduct_name(rset.getString("product_name"));
+                detail.setQuantity(rset.getInt("quantity"));
+                detail.setProduct_price(rset.getInt("product_price"));
+                detail_list.add(detail);
+                
+                //不要斷線，一直會用到，使用持續連線的方式
+               //conn.close();
+            }
+        } catch (SQLException ex) {
+            System.out.println("getAllproducts異常:" + ex.toString());
+        }
+
+        return detail_list;
+    }
     //新增訂單明細 應該寫在OrderDetailDAO.java比較好
     public boolean insertOrderDetailItem(OrderDetail item) {
         //String order_num =  getMaxOrderNum();

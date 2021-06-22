@@ -33,6 +33,10 @@ public class AppController {
 
     //url根路徑 或稱為 家路徑 也適合
     @RequestMapping("/")
+    public String home_pg(Model model) {
+        return "index_v2.html";
+    }
+        @RequestMapping("/home")
     public String home(Model model) {
         return "index.html";
     }
@@ -44,7 +48,7 @@ public class AppController {
         System.out.println(products.get(0).toString());
         model.addAttribute("listProducts", products);
         System.out.println(model.toString());
-        return "list.html";
+        return "list_v2.html";
     }
 
     //order
@@ -56,7 +60,7 @@ public class AppController {
         //List<Product> products = productDao.getAllProducts(); //全部
 
         model.addAttribute("products", products);
-        return "order.html";
+        return "order_v2.html";
     }
     // 將這項產品與其數量加入購物車
 
@@ -109,8 +113,21 @@ public class AppController {
         int sum = check_total(cart);
         System.out.println("sum:" + sum);
         httpSession.setAttribute("sum", sum);
-        return "cart.html";
+        return "cart_v2.html";
 
+    }
+    //明細
+        @RequestMapping("/detail")
+    public String detail(@RequestParam(name = "order_num") String order_num,Model model) {
+        List<OrderDetail> details = orderDao.getAllDetails(order_num);
+        System.out.println(details.get(0).toString());
+        model.addAttribute("listDetails", details);
+        System.out.println(model.toString());
+        List<Order> receipts = orderDao.getReceipt(order_num);
+        System.out.println(receipts.get(0).toString());
+        model.addAttribute("listReceipts", receipts);
+        System.out.println(model.toString());
+        return "detail.html";
     }
     // 結帳 
 
@@ -182,8 +199,8 @@ public class AppController {
 
         sum = 0;
         httpSession.setAttribute("sum", sum);
-
-        return "redirect:/cart";
+        String redir = String.format("redirect:/detail?order_num=%s",new_order_num);
+        return redir;
         //return "redirect:/";
     }
 
@@ -263,7 +280,7 @@ public class AppController {
         if (httpSession.getAttribute("cart") == null) {
             httpSession.setAttribute("sum", "尚未購物或購物車已過期");
         }
-        return "cart.html";
+        return "cart_v2.html";
     }
 
     //order search 1
@@ -272,7 +289,13 @@ public class AppController {
 
         List<Product> products = productDao.findByNameContaining(name);
         model.addAttribute("products", products);
-        return "order.html";
+        return "order_v2.html";
+    }
+    //order detail search
+        @RequestMapping("/searchOrderDetailByOrderNum")
+    public String searchByOrderNum(@RequestParam("order_num") String order_num) {
+        String redir = String.format("redirect:/detail?order_num=%s",order_num);
+        return redir;
     }
 
     //order search 2
@@ -290,7 +313,7 @@ public class AppController {
 
         List<Product> products = productDao.findByPriceLessThanEqual(price);
         model.addAttribute("products", products);
-        return "order.html";
+        return "order_v2.html";
     }
 
     //order search 3
@@ -300,7 +323,7 @@ public class AppController {
         System.out.println("cate:" + cate);
         List<Product> products = productDao.findByCate(cate);
         model.addAttribute("products", products);
-        return "order.html";
+        return "order_v2.html";
     }
 
     //新增產品

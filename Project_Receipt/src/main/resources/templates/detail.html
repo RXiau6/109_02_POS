@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml"   xmlns:th="http://www.thymeleaf.org">
+    <head>
+       <link rel="stylesheet" href="path/to/font-awesome/css/font-awesome.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+         <link th:href="@{/sidebar.css}" type="text/css" rel="stylesheet"/>
+         <link th:href="@{/animate.css}" type="text/css" rel="stylesheet"/>
+       <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
+
+    </head>
+    <body>
+        <div class="container-fluid">
+    <div class="row d-flex d-md-block flex-nowrap wrapper">
+        <div class="col-md-3 float-left col-1 pl-0 pr-0 collapse width show" id="sidebar">
+            <div class="list-group border-0 text-center text-md-left">
+                <a href="/" class="list-group-item d-inline-block collapsed"><i class="bi bi-house"></i> <span class="d-none d-md-inline">Home</span></a>
+                <a href="/list" class="list-group-item d-inline-block collapsed"><i class="bi bi-card-list"></i> <span class="d-none d-md-inline">Product List</span></a>
+                <a href="/order" class="list-group-item d-inline-block collapsed"><i class="bi bi-table"></i> <span class="d-none d-md-inline">Order</span></a>
+                 <a href="/cart" class="list-group-item d-inline-block collapsed"><i class="bi bi-cart"></i> <span class="d-none d-md-inline">Cart</span></a>
+
+            </div>
+        </div>
+        <main class="col-md-9 float-left col px-5 pl-md-2 pt-2 main">
+            <a href="#" data-target="#sidebar" data-toggle="collapse"><i class="text-dark bi bi-list fa-lg py-2 p-1"></i></a>
+            <div class="page-header">
+                <h2 class="display-4 font-weight-light">DrinkShop POS</h2>
+            </div>
+            <p class="lead">消費明細.</p>
+            <hr>
+                        <div class="container">
+
+            <div class="row">
+
+                <div class="col-md-12 mb-2">
+                    <h5   class="d-inline-block">
+                        <a  class="btn btn-primary btn-m mb-3" href="/">回首頁</a>
+                        <a  class="btn btn-primary btn-m mb-3" href="/order">繼續點餐</a>
+
+                    </h5>
+                </div>
+
+                <!-- column -->
+                <div class="col-md mb-5">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="h6 text-uppercase mb-0">訂單明細</h3>
+                        </div>
+                        <div class="card-body">
+
+                            <table border="0" class = "table table-striped">
+                                        <thead>
+                                            <tr>
+                                                <th>訂單編號</th>
+                                                <th>產品名稱</th>
+                                                <th>數量</th>
+                                                <th>單杯價格</th>
+                                            </tr>
+                                        </thead>
+                                <tbody>
+                                    <tr th:each="item:${listDetails}">
+                                        <td th:text="${item.order_num}"></td>
+                                        <td th:text="${item.product_name}"></td>
+                                        <td th:text="${item.quantity}"></td>
+                                        <td th:text="${item.product_price}"></td>
+
+                                    </tr>
+
+                                </tbody>
+                            </table>
+                             <table border="0" class = "table table-striped">
+                                                                         <thead>
+                                            <tr>
+                                                <th>訂單編號</th>
+                                                <th>訂單日期</th>
+                                                <th>訂購人姓名</th>
+                                                <th>訂購人住址</th>
+                                                <th>訂購人電話</th>
+                                                <th>總價格</th>
+                                                <th>發票號碼</th>
+                                            </tr>
+                                        </thead>
+                                 <!--/*
+                    private String order_num;
+    private String order_date;
+    private int total_price;
+    private String customer_name;
+    private String customer_address;
+    private String customer_phtone;
+    private String recipt_num;*/-->
+                                <tbody>
+                                    <tr th:each="item:${listReceipts}">
+                                        <td th:text="${item.order_num}"></td>
+                                        <td th:text="${item.order_date}"></td>
+                                        <td th:text="${item.customer_name}"></td>
+                                        <td th:text="${item.customer_address}"></td>
+                                        <td th:text="${item.customer_phtone}"></td>
+                                        <td th:text="${item.total_price}"></td>
+                                        <td th:text="${item.recipt_num}"></td>
+
+                                    </tr>
+
+                                </tbody>
+                                  </table>
+                            <!-- 如果總金額變數為0，顯示購物車內無資料! -->
+                            <!--h2 th:text="${session.sum} !=0 ?'總金額:$'+${session.sum} : '購物車無資料!'"></h2-->
+
+                        </div><!-- end of cardbody -->
+                    </div><!-- end of card -->
+                </div><!-- end of column -->
+
+                <div class="col-md-8 mb-5">
+                    <!-- 如果購物車是null或是沒有內容，不要顯示購買區塊的內容 -->
+                    <div th:if = "${session.cart !=null && !session.cart.empty}">
+                        <!-- column -->
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="h6 text-uppercase mb-0">客戶資訊(Optional)</h3>
+                            </div>
+                            <div class="card-body">
+
+
+                                <form  action="/save">
+
+                                    <div class="row">
+                                        <div class="form-group col-md-6">
+                                            <input type="text" name="user-name" class="form-control" value="王範例" placeholder="姓名..."/>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <input type="text" name="phone" class="form-control" value="093256789" placeholder="電話..."/>
+                                        </div>
+                                        <div class="form-group col-md-12">
+                                            <input type="text" name="address" class="form-control" value="高雄市楠梓區大學路一號" placeholder="地址..."/>
+                                        </div>
+
+                                        <div class="form-group col-md-12">
+                                            <button type="submit" class="btn btn-success">確定購買<i class="fa fa-search"></i>
+                                            </button>
+                                        </div>
+                                    </div> <!-- row -->
+                                </form>
+                            </div><!-- end of cardbody -->
+                        </div><!-- end of card -->
+                    </div><!-- end of thymeleaf if -->
+                </div><!-- end of column -->
+
+            </div> <!-- end of row -->
+        </div><!-- end of container -->
+        </main>
+    </div>
+</div>
+    </body>
+</html>
